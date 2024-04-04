@@ -1,30 +1,18 @@
-'use client'
+"use client"
 
-import { Button } from '@/components/ui/button'
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from '@/components/ui/form'
-import { Input } from '@/components/ui/input'
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from '@/components/ui/sheet'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { Pencil } from 'lucide-react'
-import { useState } from 'react'
-import { useForm } from 'react-hook-form'
-import { toast } from 'sonner'
-import * as z from 'zod'
-import { updateShortUrl } from './apis/shortUrls'
+import { useState } from "react"
+import { zodResolver } from "@hookform/resolvers/zod"
+import { useMutation, useQueryClient } from "@tanstack/react-query"
+import { Pencil } from "lucide-react"
+import { useForm } from "react-hook-form"
+import { toast } from "sonner"
+import * as z from "zod"
+
+import { updateShortUrl } from "@/lib/auth-helpers"
+import { Button } from "@/components/ui/button"
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
+import { Input } from "@/components/ui/input"
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet"
 
 const formSchema = z.object({
   newId: z.string().min(4).max(64),
@@ -32,22 +20,14 @@ const formSchema = z.object({
   url: z.string().max(2048).url(),
 })
 
-export default function Page({
-  id,
-  title,
-  url,
-}: {
-  id: string
-  title: any
-  url: string
-}) {
+export default function Page({ id, title, url }: { id: string; title: any; url: string }) {
   const [open, setOpen] = useState(false)
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       newId: id,
-      title: title || '',
+      title: title || "",
       url,
     },
   })
@@ -70,7 +50,7 @@ export default function Page({
     onSuccess: () => {
       setOpen(false)
       queryClient.invalidateQueries({
-        queryKey: ['shortUrls'],
+        queryKey: ["shortUrls"],
       })
     },
     onError: (error) => {
@@ -82,7 +62,7 @@ export default function Page({
     await mutation.mutateAsync(values)
   }
 
-  const domain: any = process.env.NEXT_PUBLIC_APP_URL?.split('://')[1] + '/'
+  const domain: any = process.env.NEXT_PUBLIC_APP_URL?.split("://")[1] + "/"
 
   return (
     <Sheet open={open} onOpenChange={setOpen}>
@@ -94,10 +74,7 @@ export default function Page({
         <SheetHeader>
           <SheetTitle className="text-sm">Let&apos;s edit the URL</SheetTitle>
           <Form {...form}>
-            <form
-              onSubmit={form.handleSubmit(onSubmit)}
-              className="w-full space-y-5 py-5 font-mono text-xs"
-            >
+            <form onSubmit={form.handleSubmit(onSubmit)} className="w-full space-y-5 py-5 font-mono text-xs">
               <FormField
                 control={form.control}
                 name="newId"
@@ -108,18 +85,12 @@ export default function Page({
                         <FormLabel className="absolute -top-[9px] left-4 bg-background px-2 text-xs text-foreground/70">
                           Short URL
                         </FormLabel>
-                        <p className="absolute left-3 top-1/2 -translate-y-1/2 text-foreground/40">
-                          {domain}
-                        </p>
+                        <p className="absolute left-3 top-1/2 -translate-y-1/2 text-foreground/40">{domain}</p>
                         <Input
                           className="text-xs"
                           placeholder="nrjdalal"
                           style={{
-                            paddingLeft: `${
-                              1 +
-                              domain?.length * 0.45 +
-                              (domain?.length - 1) * 0.01
-                            }rem`,
+                            paddingLeft: `${1 + domain?.length * 0.45 + (domain?.length - 1) * 0.01}rem`,
                           }}
                           {...field}
                         />
@@ -162,11 +133,7 @@ export default function Page({
                         <FormLabel className="absolute -top-[9px] left-4 bg-background px-2 text-xs text-foreground/70">
                           Redirect URL
                         </FormLabel>
-                        <Input
-                          className="font-sans text-xs"
-                          placeholder="shadcn"
-                          {...field}
-                        />
+                        <Input className="font-sans text-xs" placeholder="shadcn" {...field} />
                       </div>
                     </FormControl>
                     <FormMessage />

@@ -5,37 +5,32 @@ import { and, eq, like } from "drizzle-orm"
 import { getServerSession } from "next-auth"
 
 import { authOptions } from "@/lib/auth"
+import { ShortUrl, unauthorizedError } from "@/lib/auth-types"
 import { db } from "@/lib/db"
 import { shortUrls, users } from "@/lib/db/schema"
 import { nanoid, sanitize } from "@/lib/utils"
 
-export type ShortUrl = {
-  id: string | null
-  url: string
-  title: string | null
-  enabled: boolean
-  clickLimit: number | null
-  password: string | null
-  timeOffset: number
-}
+// MARK: - Helpers
 
-export const getUserIdForApiKey = async (text: string) => {
+export const getUserIdForApiKey = async (apiKey: string) => {
   const user = await db
     .select({
       id: users.id,
       apiKeySalt: users.apiKeySalt,
     })
     .from(users)
-    .where(eq(users.apiKey, text.slice(0, 32)))
+    .where(eq(users.apiKey, apiKey.slice(0, 32)))
 
-  if (!user.length) return false
+  if (!user.length) {
+    return false
+  }
 
   const encodedSalt = new TextEncoder().encode(user[0].apiKeySalt as string)
   const encodedKey = new TextEncoder().encode(process.env.NEXTAUTH_SECRET)
 
   const importedKey = await crypto.subtle.importKey("raw", encodedSalt, { name: "AES-GCM" }, false, ["decrypt"])
 
-  const encryptedText = atob(text)
+  const encryptedText = atob(apiKey)
   const encryptedBuffer = new Uint8Array(encryptedText.split("").map((char) => char.charCodeAt(0))) as any
 
   try {
@@ -51,14 +46,12 @@ export const getUserIdForApiKey = async (text: string) => {
     const decryptedString = new TextDecoder().decode(decrypted)
 
     if (decryptedString === user[0].id + "." + user[0].apiKeySalt) {
-      return {
-        id: user[0].id,
-      }
+      return user[0].id
     }
 
-    return false
+    return null
   } catch {
-    return false
+    return null
   }
 }
 
@@ -123,24 +116,36 @@ export const getApiKey = async ({ intent }: { intent: string }) => {
   // const decryptedString = new TextDecoder().decode(decrypted)
 }
 
-export const getShortUrls = async () => {
+// MARK: - Get URLs
+
+export const getShortUrlsSessioned = async () => {
   const session = await getServerSession(authOptions)
   if (!session) {
-    throw new Error("Session not found")
+    return unauthorizedError
   }
 
-  return await db.select().from(shortUrls).where(eq(shortUrls.userId, session.user.id))
+  return await getShortUrlsUnsafe(session.user.id)
 }
+
+export const getShortUrlsWithApiKey = async (apiKey: string) => {
+  const userId = await getUserIdForApiKey(apiKey)
+  if (!userId) {
+    return unauthorizedError
+  }
+
+  return await getShortUrlsUnsafe(userId)
+}
+
+const getShortUrlsUnsafe = async (userId: string) => {
+  return await db.select().from(shortUrls).where(eq(shortUrls.userId, userId))
+}
+
+// MARK: - Create URLs
 
 export const createShortUrlSessioned = async (urlPayload: ShortUrl) => {
   const session = await getServerSession(authOptions)
   if (!session) {
-    return {
-      error: {
-        code: "401",
-        message: "Unauthorized",
-      },
-    }
+    return unauthorizedError
   }
 
   return await createShortUrlUnsafe(urlPayload, session.user.id)
@@ -149,14 +154,9 @@ export const createShortUrlSessioned = async (urlPayload: ShortUrl) => {
 export const createShortUrlWithApiKey = async (urlPayload: ShortUrl, apiKey: string) => {
   const userId = await getUserIdForApiKey(apiKey)
   if (!userId) {
-    return {
-      error: {
-        code: "401",
-        message: "Unauthorized",
-      },
-    }
+    return unauthorizedError
   }
-  return await createShortUrlUnsafe(urlPayload, userId.id)
+  return await createShortUrlUnsafe(urlPayload, userId)
 }
 
 const createShortUrlUnsafe = async (urlPayload: ShortUrl, userId: string) => {
@@ -236,6 +236,8 @@ const createShortUrlUnsafe = async (urlPayload: ShortUrl, userId: string) => {
   }
 }
 
+// MARK: - Update URLs
+
 export const updateShortUrl = async ({
   id,
   newId,
@@ -291,6 +293,8 @@ export const updateShortUrl = async ({
     }
   }
 }
+
+// MARK: - Delete URLs
 
 export const deleteShortUrl = async ({ id }: { id: string }) => {
   const session = await getServerSession(authOptions)
