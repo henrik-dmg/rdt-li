@@ -8,8 +8,7 @@ const clientEnvironmentSchema = z.object({
 })
 
 export const clientEnvironment = clientEnvironmentSchema.parse({
-  NEXT_PUBLIC_APP_URL:
-    process.env.VERCEL_URL || process.env.NEXT_PUBLIC_APP_URL,
+  NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL,
   NEXT_PUBLIC_UMAMI_URL: process.env.NEXT_PUBLIC_UMAMI_URL,
   NEXT_PUBLIC_UMAMI_SHARE_URL: process.env.NEXT_PUBLIC_UMAMI_SHARE_URL,
   NEXT_PUBLIC_UMAMI_WEBSITE_ID: process.env.NEXT_PUBLIC_UMAMI_WEBSITE_ID,
