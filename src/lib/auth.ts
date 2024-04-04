@@ -1,26 +1,28 @@
-import { db } from '@/lib/db'
-import { users } from '@/lib/db/schema'
-import { DrizzleAdapter } from '@auth/drizzle-adapter'
-import { eq } from 'drizzle-orm'
-import { NextAuthOptions } from 'next-auth'
-import type { User } from 'next-auth'
-import { Adapter } from 'next-auth/adapters'
-import GoogleProvider from 'next-auth/providers/google'
+import { DrizzleAdapter } from "@auth/drizzle-adapter"
+import { eq } from "drizzle-orm"
+import { NextAuthOptions } from "next-auth"
+import type { User } from "next-auth"
+import { Adapter } from "next-auth/adapters"
+import Auth0Provider from "next-auth/providers/auth0"
+
+import { db } from "@/lib/db"
+import { users } from "@/lib/db/schema"
 
 export const authOptions: NextAuthOptions = {
   // debug: process.env.NODE_ENV === 'development',
   adapter: DrizzleAdapter(db) as Adapter,
   providers: [
-    GoogleProvider({
-      clientId: process.env.GOOGLE_CLIENT_ID as string,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
+    Auth0Provider({
+      clientId: process.env.AUTH0_CLIENT_ID as string,
+      clientSecret: process.env.AUTH0_SECRET as string,
+      issuer: process.env.AUTH0_ISSUER as string,
     }),
   ],
   pages: {
-    signIn: '/access',
+    signIn: "/access",
   },
   session: {
-    strategy: 'jwt',
+    strategy: "jwt",
   },
   callbacks: {
     async session({ token, session }) {
@@ -37,7 +39,7 @@ export const authOptions: NextAuthOptions = {
       const [dbUser] = await db
         .select()
         .from(users)
-        .where(eq(users.email, token.email || ''))
+        .where(eq(users.email, token.email || ""))
         .limit(1)
 
       if (!dbUser) {
@@ -57,13 +59,13 @@ export const authOptions: NextAuthOptions = {
   },
 }
 
-declare module 'next-auth/jwt' {
+declare module "next-auth/jwt" {
   interface JWT {
     id: string
   }
 }
 
-declare module 'next-auth' {
+declare module "next-auth" {
   interface Session {
     user: User & {
       id: string

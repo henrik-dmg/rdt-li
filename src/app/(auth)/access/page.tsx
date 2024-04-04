@@ -1,26 +1,22 @@
-'use client'
+"use client"
 
-import { signIn } from 'next-auth/react'
-import Link from 'next/link'
+import Link from "next/link"
+import { signIn } from "next-auth/react"
 
 const Page = () => {
   return (
     <div className="flex min-h-[100dvh] flex-col items-center justify-center gap-5 p-5">
       <Link
-        href={'/'}
+        href={"/"}
         className="flex h-10 w-full max-w-lg items-center justify-center rounded-md bg-slate-900 px-8 text-center text-sm text-white"
       >
         Home
       </Link>
       <button
         className="flex h-10 w-full max-w-lg items-center justify-center gap-2 rounded-md border bg-background px-8 py-2 text-sm"
-        onClick={() => signIn('google')}
+        onClick={() => signIn("auth0")}
       >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          className="h-6 w-6"
-          viewBox="0 0 48 48"
-        >
+        <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" viewBox="0 0 48 48">
           <path
             fill="#FFC107"
             d="M43.611 20.083H42V20H24v8h11.303c-1.649 4.657-6.08 8-11.303 8c-6.627 0-12-5.373-12-12s5.373-12 12-12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4C12.955 4 4 12.955 4 24s8.955 20 20 20s20-8.955 20-20c0-1.341-.138-2.65-.389-3.917z"
