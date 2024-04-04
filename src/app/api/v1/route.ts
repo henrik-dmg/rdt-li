@@ -1,7 +1,7 @@
+import { createShortUrlUnsafe } from '@/app/(admin)/x/apis/shortUrls'
 import { db } from '@/lib/db'
 import { shortUrls, users } from '@/lib/db/schema'
 import { eq } from 'drizzle-orm'
-import { headers } from 'next/headers'
 import { NextResponse } from 'next/server'
 
 const decryptor = async (text: string) => {
@@ -51,66 +51,62 @@ const decryptor = async (text: string) => {
   return false
 }
 
-// GET /api/v1 for docs
-export async function GET() {
-  return NextResponse.json({
-    endpoint: `${process.env.NEXT_PUBLIC_APP_URL}/api/v1`,
-    message: 'Use POST method to access the API',
-    headers: {
-      authorization: 'Bearer <API Key>',
-    },
-    body: {
-      '1. To get short urls': {
-        intent: 'get',
-      },
-      '2. To create short url': {
-        message: 'Not implemented yet',
-      },
-      '3. To update short url': {
-        message: 'Not implemented yet',
-      },
-      '4. To delete short url': {
-        message: 'Not implemented yet',
-      },
-    },
-    contributeAt:
-      'https://github.com/nrjdalal/rdt-li/blob/main/src/app/api/v1/route.ts',
-  })
-}
-
-export async function POST(request: Request) {
+const authorizedHandler = async (
+  request: Request,
+  handler: (id: string) => Promise<NextResponse>,
+) => {
   try {
-    const { intent } = await request.json()
-
-    if (!intent) return NextResponse.json({ message: 'No intent', status: 400 })
-
-    if (!['get', 'create', 'update', 'delete'].includes(intent))
-      return NextResponse.json({ message: 'Invalid intent', status: 400 })
-
+    // const token = await getToken({ req: request })
+    // if (!token) {
+    //   return NextResponse.json({ message: 'Unauthorized', status: 401 })
+    // }
     const apiKey = request.headers.get('Authorization')?.split(' ')[1]
-
     const isMatch = await decryptor(apiKey as string)
 
     if (isMatch) {
-      if (intent === 'get') {
-        const shortUrlsData = await db
-          .select()
-          .from(shortUrls)
-          .where(eq(shortUrls.userId, isMatch.id))
-
-        return NextResponse.json({
-          data: shortUrlsData,
-          status: 200,
-        })
-      }
-
-      if (intent === 'create' || intent === 'update' || intent === 'delete') {
-        return NextResponse.json({ message: 'Not implemented', status: 501 })
-      }
+      return handler(isMatch.id)
     }
 
     return NextResponse.json({ message: 'User does not exist', status: 404 })
-  } catch {
+  } catch (exception) {
+    console.log(exception)
     return NextResponse.json({ message: 'Please try again', status: 409 })
   }
+}
+
+// GET /api/v1 returns list of all short urls
+export async function GET(request: Request) {
+  return await authorizedHandler(request, async (id) => {
+    const shortUrlsData = await db
+      .select()
+      .from(shortUrls)
+      .where(eq(shortUrls.userId, id))
+
+    return NextResponse.json({
+      data: shortUrlsData,
+      status: 200,
+    })
+  })
+}
+
+// POST /api/v1 creates new short url
+export async function POST(request: Request) {
+  return await authorizedHandler(request, async (id) => {
+    const data = await request.json()
+    const shortUrl = await createShortUrlUnsafe({
+      url: data.url,
+      id: '',
+      title: '',
+      password: '',
+      enabled: 'true',
+      clickLimit: null,
+      timeOffset: 0,
+      userId: id,
+    })
+
+    return NextResponse.json({
+      data: shortUrl,
+      status: 201,
+    })
+  })
 }
