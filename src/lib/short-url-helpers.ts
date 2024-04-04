@@ -7,6 +7,7 @@ import { shortUrls } from '@/lib/db/schema'
 import {
   ShortUrl,
   ShortUrlApiError,
+  ShortUrlUpdate,
   unauthorizedError,
 } from '@/lib/short-url-types'
 import { nanoid, sanitize } from '@/lib/utils'
@@ -118,23 +119,30 @@ async function createShortUrlUnsafe(
 
 // MARK: - Update URLs
 
-export const updateShortUrl = async ({
-  id,
-  newId,
-  title,
-  url,
-}: {
-  id: string
-  newId: string
-  title?: string | undefined
-  url: string
-}) => {
+export async function updateShortUrlSessioned(updatedShortUrl: ShortUrlUpdate) {
   const session = await getServerSession(authOptions)
   if (!session) {
     throw new Error('Session not found')
   }
+  return await updateShortUrlUnsafe(updatedShortUrl, session.user.id)
+}
 
-  const xid = newId || id
+export async function updateShortUrlWithApiKey(
+  updatedShortUrl: ShortUrlUpdate,
+  apiKey: string,
+) {
+  const userId = await getUserIdForApiKey(apiKey)
+  if (!userId) {
+    throw unauthorizedError
+  }
+  return await updateShortUrlUnsafe(updatedShortUrl, userId)
+}
+
+async function updateShortUrlUnsafe(
+  updatedShortUrl: ShortUrlUpdate,
+  userId: string,
+) {
+  const xid = updatedShortUrl.newId || updatedShortUrl.id
 
   if (xid.startsWith('_')) {
     return {
@@ -150,11 +158,13 @@ export const updateShortUrl = async ({
       .update(shortUrls)
       .set({
         id: sanitize(xid),
-        title: title || null,
-        url,
+        title: updatedShortUrl.title || null,
+        url: updatedShortUrl.url,
         updatedAt: new Date(),
       })
-      .where(and(eq(shortUrls.userId, session.user.id), eq(shortUrls.id, id)))
+      .where(
+        and(eq(shortUrls.userId, userId), eq(shortUrls.id, updatedShortUrl.id)),
+      )
   } catch (error: any) {
     if (error?.code === '23505') {
       return {

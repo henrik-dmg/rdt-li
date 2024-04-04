@@ -17,7 +17,7 @@ import {
   SheetTitle,
   SheetTrigger,
 } from '@/components/ui/sheet'
-import { updateShortUrl } from '@/lib/short-url-helpers'
+import { updateShortUrlSessioned } from '@/lib/short-url-helpers'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { Pencil } from 'lucide-react'
@@ -56,9 +56,11 @@ export default function Page({
 
   const mutation = useMutation({
     mutationFn: async (values: z.infer<typeof formSchema>) => {
-      const res: any = await updateShortUrl({
+      const res: any = await updateShortUrlSessioned({
         id,
-        ...values,
+        newId: values.newId,
+        title: values.title,
+        url: values.url,
       })
 
       if (res?.error) {

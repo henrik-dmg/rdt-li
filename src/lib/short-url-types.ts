@@ -1,11 +1,18 @@
 export type ShortUrl = {
-  id: string | null
+  id: string | undefined | null
   url: string
-  title: string | null
+  title: string | undefined | null
   enabled: boolean
-  clickLimit: number | null
-  password: string | null
+  clickLimit: number | undefined | null
+  password: string | undefined | null
   timeOffset: number
+}
+
+export type ShortUrlUpdate = {
+  id: string
+  newId: string
+  title: string | undefined
+  url: string
 }
 
 export class ShortUrlApiError extends Error {
