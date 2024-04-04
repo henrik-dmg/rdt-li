@@ -34,6 +34,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import { clientEnvironment } from '@/lib/env'
 import {
   deleteShortUrlSessioned,
   getShortUrlsSessioned,
@@ -170,7 +171,7 @@ const Page = () => {
   // searching
   const xData = sortedData.map((item: any) => {
     let id_html =
-      `${process.env.NEXT_PUBLIC_APP_URL?.split('//')[1]}/${item.id}`.replace(
+      `${clientEnvironment.NEXT_PUBLIC_APP_URL?.split('//')[1]}/${item.id}`.replace(
         new RegExp(filterBy, 'gi'),
         (match: any) => `<span class="bg-yellow-200">${match}</span>`,
       )
@@ -321,7 +322,7 @@ const Page = () => {
                       className="h-3.5 w-3.5 cursor-pointer text-slate-500"
                       onClick={() => {
                         navigator.clipboard.writeText(
-                          `${process.env.NEXT_PUBLIC_APP_URL}/${shortUrl.id}`,
+                          `${clientEnvironment.NEXT_PUBLIC_APP_URL}/${shortUrl.id}`,
                         )
                         toast.success('Copied to clipboard')
                       }}
@@ -354,7 +355,7 @@ const Page = () => {
                                   Do you want to delete
                                   <br />
                                   {
-                                    process.env.NEXT_PUBLIC_APP_URL?.split(
+                                    clientEnvironment.NEXT_PUBLIC_APP_URL?.split(
                                       '//',
                                     )[1]
                                   }

@@ -6,15 +6,16 @@ import { NextAuthOptions } from 'next-auth'
 import type { User } from 'next-auth'
 import { Adapter } from 'next-auth/adapters'
 import Auth0Provider from 'next-auth/providers/auth0'
+import { serverEnvironment } from './env'
 
 export const authOptions: NextAuthOptions = {
   // debug: process.env.NODE_ENV === 'development',
   adapter: DrizzleAdapter(db) as Adapter,
   providers: [
     Auth0Provider({
-      clientId: process.env.AUTH0_CLIENT_ID as string,
-      clientSecret: process.env.AUTH0_SECRET as string,
-      issuer: process.env.AUTH0_ISSUER as string,
+      clientId: serverEnvironment.AUTH0_CLIENT_ID,
+      clientSecret: serverEnvironment.AUTH0_SECRET,
+      issuer: serverEnvironment.AUTH0_ISSUER,
     }),
   ],
   pages: {

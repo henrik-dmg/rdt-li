@@ -3,6 +3,7 @@
 import { authOptions } from '@/lib/auth'
 import { db } from '@/lib/db'
 import { users } from '@/lib/db/schema'
+import { clientEnvironment, serverEnvironment } from '@/lib/env'
 import { ShortUrlApiError, unauthorizedError } from '@/lib/short-url-types'
 import { nanoid } from '@/lib/utils'
 import { eq } from 'drizzle-orm'
@@ -50,7 +51,7 @@ export const getUserIdForApiKey = async (apiKey: string) => {
   }
 
   const encodedSalt = new TextEncoder().encode(user[0].apiKeySalt as string)
-  const encodedKey = new TextEncoder().encode(process.env.NEXTAUTH_SECRET)
+  const encodedKey = new TextEncoder().encode(serverEnvironment.NEXTAUTH_SECRET)
 
   const importedKey = await crypto.subtle.importKey(
     'raw',
@@ -102,7 +103,7 @@ export const getApiKey = async ({ intent }: { intent: string }) => {
   if (intent === 'new' || !user[0].apiKey) {
     const salt = nanoid(32)
     const text = `${session.user.id}.${salt}`
-    const key = process.env.NEXTAUTH_SECRET
+    const key = serverEnvironment.NEXTAUTH_SECRET
 
     const encodedSalt = new TextEncoder().encode(salt)
     const encodedText = new TextEncoder().encode(text)

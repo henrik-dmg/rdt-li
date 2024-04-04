@@ -43,6 +43,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import { clientEnvironment } from '@/lib/env'
 import { createShortUrlSessioned } from '@/lib/short-url-helpers'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
@@ -118,7 +119,8 @@ export default function Page() {
     await mutation.mutateAsync(values)
   }
 
-  const domain: any = process.env.NEXT_PUBLIC_APP_URL?.split('://')[1] + '/'
+  const domain: any =
+    clientEnvironment.NEXT_PUBLIC_APP_URL?.split('://')[1] + '/'
 
   return (
     <div className="container flex min-h-[100dvh] max-w-3xl flex-col p-5 font-mono">
@@ -134,7 +136,7 @@ export default function Page() {
           <br />* Docs:{' '}
           <Link
             className="underline"
-            href={`${process.env.NEXT_PUBLIC_APP_URL}/api/v1/docs`}
+            href={`${clientEnvironment.NEXT_PUBLIC_APP_URL}/api/v1/docs`}
           >
             rdt.li/docs
           </Link>

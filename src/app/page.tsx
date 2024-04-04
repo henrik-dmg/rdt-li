@@ -1,6 +1,7 @@
 import CreateShortUrls from '@/app/createPublic'
 import { db } from '@/lib/db'
 import { shortUrls, users } from '@/lib/db/schema'
+import { clientEnvironment } from '@/lib/env'
 import { count, isNotNull, isNull } from 'drizzle-orm'
 import { Anchor, ArrowDown, ExternalLink, Star, User } from 'lucide-react'
 import Image from 'next/image'
@@ -42,7 +43,7 @@ export default async function Page() {
 
           <h1 className="font-heading max-w-md text-3xl sm:text-4xl">
             <span className="font-mono font-semibold">
-              {process.env.NEXT_PUBLIC_APP_URL?.split('://')[1]}
+              {clientEnvironment.NEXT_PUBLIC_APP_URL.split('://')[1]}
             </span>{' '}
             self hostable open source URL shortener
           </h1>
@@ -50,9 +51,9 @@ export default async function Page() {
           <CreateShortUrls />
 
           <p className="max-w-[42rem] leading-normal text-muted-foreground sm:text-xl sm:leading-8">
-            {process.env.NEXT_PUBLIC_APP_URL?.split('://')[1]} self hostable,
-            feature rich, minimalistic and open source URL shortener. Built with
-            Next.js, Drizzle, NextAuth and Postgres.
+            {clientEnvironment.NEXT_PUBLIC_APP_URL.split('://')[1]} self
+            hostable, feature rich, minimalistic and open source URL shortener.
+            Built with Next.js, Drizzle, NextAuth and Postgres.
           </p>
 
           <p className="text-xs">
@@ -105,12 +106,13 @@ export default async function Page() {
           <p className="text-xs">Short Links</p>
           <p>{getShortUrlsCount}</p>
         </div>
-        {(process.env.NEXT_PUBLIC_UMAMI_URL ||
+        {(clientEnvironment.NEXT_PUBLIC_UMAMI_URL ||
           process.env.NODE_ENV === 'development') && (
           <Link
             className="col-span-2 flex flex-col items-center space-y-1 rounded-md border-2 border-red-400 bg-red-100 px-8 py-2"
             href={
-              `${process.env.NEXT_PUBLIC_UMAMI_SHARE_URL}` || 'https://umami.is'
+              `${clientEnvironment.NEXT_PUBLIC_UMAMI_SHARE_URL}` ||
+              'https://umami.is'
             }
             target="_blank"
           >
@@ -173,12 +175,12 @@ export default async function Page() {
               />
             </Link>
 
-            {(process.env.NEXT_PUBLIC_UMAMI_URL ||
+            {(clientEnvironment.NEXT_PUBLIC_UMAMI_URL ||
               process.env.NODE_ENV === 'development') && (
               <Link
                 className="flex h-[26.56px] items-center gap-2 rounded-sm bg-black px-2 text-[0.6rem] text-background"
                 href={
-                  `${process.env.NEXT_PUBLIC_UMAMI_SHARE_URL}` ||
+                  `${clientEnvironment.NEXT_PUBLIC_UMAMI_SHARE_URL}` ||
                   'https://umami.is'
                 }
                 target="_blank"

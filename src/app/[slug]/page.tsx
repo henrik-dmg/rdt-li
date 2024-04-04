@@ -1,5 +1,6 @@
 import { db } from '@/lib/db'
 import { shortUrls } from '@/lib/db/schema'
+import { clientEnvironment } from '@/lib/env'
 import Link from 'next/link'
 import { permanentRedirect } from 'next/navigation'
 import retry from 'p-retry'
@@ -11,7 +12,7 @@ async function getData(slug: string) {
     const res = await retry(
       async () => {
         const pRes = await fetch(
-          `${process.env.NEXT_PUBLIC_APP_URL}/api/redirect`,
+          `${clientEnvironment.NEXT_PUBLIC_APP_URL}/api/redirect`,
           {
             method: 'POST',
             headers: {
@@ -67,7 +68,7 @@ export default async function Page({ params }: { params: { slug: string } }) {
       >
         {data.message}
         <br />
-        {process.env.NEXT_PUBLIC_APP_URL?.split('://')[1]}/{slug}
+        {clientEnvironment.NEXT_PUBLIC_APP_URL?.split('://')[1]}/{slug}
       </Link>
 
       <p className="text-sm">
@@ -76,7 +77,7 @@ export default async function Page({ params }: { params: { slug: string } }) {
           className="animate-pulse text-sm font-bold text-orange-500 underline"
           href="/"
         >
-          {process.env.NEXT_PUBLIC_APP_URL?.split('://')[1]}
+          {clientEnvironment.NEXT_PUBLIC_APP_URL?.split('://')[1]}
         </Link>
       </p>
     </div>

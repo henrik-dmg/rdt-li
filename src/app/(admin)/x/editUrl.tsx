@@ -17,6 +17,7 @@ import {
   SheetTitle,
   SheetTrigger,
 } from '@/components/ui/sheet'
+import { clientEnvironment } from '@/lib/env'
 import { updateShortUrlSessioned } from '@/lib/short-url-helpers'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
@@ -84,7 +85,8 @@ export default function Page({
     await mutation.mutateAsync(values)
   }
 
-  const domain: any = process.env.NEXT_PUBLIC_APP_URL?.split('://')[1] + '/'
+  const domain: any =
+    clientEnvironment.NEXT_PUBLIC_APP_URL?.split('://')[1] + '/'
 
   return (
     <Sheet open={open} onOpenChange={setOpen}>

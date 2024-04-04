@@ -1,9 +1,10 @@
+import { clientEnvironment } from '@/lib/env'
 import { NextResponse } from 'next/server'
 
 // GET /api/v1/docs for API docs :D
 export async function GET() {
   return NextResponse.json({
-    endpoint: `${process.env.NEXT_PUBLIC_APP_URL}/api/v1`,
+    endpoint: `${clientEnvironment.NEXT_PUBLIC_APP_URL}/api/v1`,
     headers: {
       authorization: 'Bearer <API Key>',
     },
