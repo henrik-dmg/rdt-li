@@ -152,7 +152,7 @@ export default function CreatePublicUrlWidget() {
 
                 <FormControl>
                   <Input
-                    className="text-center font-mono placeholder:text-slate-400"
+                    className="text-center font-mono"
                     placeholder="https://github.com/nrjdalal"
                     {...field}
                   />

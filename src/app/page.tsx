@@ -1,4 +1,5 @@
 import CreateShortUrls from '@/components/create-public-url-widget'
+import { Button } from '@/components/ui/button'
 import { db } from '@/lib/db'
 import { shortUrls, users } from '@/lib/db/schema'
 import { clientEnvironment } from '@/lib/env/client-env'
@@ -62,26 +63,18 @@ export default async function Page() {
           </p>
 
           <div className="mt-3 flex space-x-4">
-            <Link
-              href="/admin"
-              className="flex h-10 items-center rounded-md bg-blue-500 px-8 text-sm text-white"
-            >
-              Login
-            </Link>
-            <Link
-              href="https://rdt.li/github"
-              target="_blank"
-              rel="noreferrer"
-              className="relative flex h-10 items-center gap-2 rounded-md border bg-background px-8 text-sm"
-            >
-              <p>Github</p>
-              <div className="absolute -top-4 right-2.5 flex items-center gap-1 rounded-md bg-foreground px-2 text-background">
-                <Star className="h-2.5 w-2.5" />
-                <p className="pt-0.5 font-mono text-[0.6rem] font-bold">
-                  {githubInfo?.stargazers_count || 0}
-                </p>
-              </div>
-            </Link>
+            <Button asChild>
+              <Link href="/access">Login</Link>
+            </Button>
+            <Button asChild variant={'secondary'}>
+              <Link
+                href="https://rdt.li/github"
+                target="_blank"
+                rel="noreferrer"
+              >
+                Github
+              </Link>
+            </Button>
           </div>
         </div>
       </section>

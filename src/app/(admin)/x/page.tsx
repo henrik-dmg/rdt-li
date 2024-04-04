@@ -48,7 +48,7 @@ import { createShortUrlSessioned } from '@/lib/short-url-helpers'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { Home, Laptop, Moon, Star, Sun } from 'lucide-react'
-import { signOut } from 'next-auth/react'
+import { getSession, signOut } from 'next-auth/react'
 import { useTheme } from 'next-themes'
 import Image from 'next/image'
 import Link from 'next/link'
@@ -159,14 +159,17 @@ export default function Page() {
                     <Link href="/">
                       <Home className="h-4 w-4" />
                     </Link>
-                    <Link
-                      href="https://rdt.li/github"
-                      target="_blank"
-                      className="flex items-center gap-1.5 rounded-md bg-blue-500 px-3 py-0.5 text-[0.6rem] text-white"
-                    >
-                      <p className="mt-0.5">Github</p>
-                      <Star className="h-3.5 w-3.5" />
-                    </Link>
+                    <Button asChild variant="link">
+                      <Link
+                        href="https://rdt.li/github"
+                        target="_blank"
+                        className="flex items-center gap-1.5"
+                      >
+                        <p>Github</p>
+                        <Star className="h-3.5 w-3.5" />
+                      </Link>
+                    </Button>
+
                     <Menubar className="h-min rounded-full p-0">
                       <MenubarMenu>
                         <MenubarTrigger className="p-0">
@@ -229,7 +232,7 @@ export default function Page() {
                 </div>
                 <FormControl>
                   <Input
-                    className="font-mono text-xs placeholder:text-slate-400"
+                    className="font-mono text-xs"
                     placeholder="https://github.com/nrjdalal"
                     {...field}
                   />
@@ -247,8 +250,8 @@ export default function Page() {
           */}
           <Accordion type="single" collapsible>
             <AccordionItem className="relative border-none" value="advance">
-              <AccordionTrigger className="right-0 -mt-4 mb-5 flex w-full justify-end p-0 font-sans text-xs text-blue-600">
-                Advance Settings
+              <AccordionTrigger className="right-0 -mt-4 mb-5 flex w-full justify-end p-0 font-sans text-xs text-secondary-foreground">
+                Advanced Settings
                 <span className="w-1" />
               </AccordionTrigger>
               <AccordionContent className="overflow-visible pb-1 data-[state=closed]:invisible">
