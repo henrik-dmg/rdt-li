@@ -1,24 +1,10 @@
-import { NextResponse } from "next/server"
-
-import { createShortUrlWithApiKey, getShortUrlsWithApiKey } from "@/lib/auth-helpers"
-import { ShortUrl, ShortUrlApiError, unauthorizedError } from "@/lib/auth-types"
-
-const withApiKey = async (request: Request, handler: (apiKey: string) => Promise<NextResponse>) => {
-  try {
-    const apiKey = request.headers.get("Authorization")?.split(" ")[1]
-    if (apiKey) {
-      return await handler(apiKey)
-    }
-
-    return NextResponse.json(unauthorizedError)
-  } catch (error) {
-    if (error instanceof ShortUrlApiError) {
-      return NextResponse.json({ error_message: error.message }, { status: error.code })
-    } else {
-      return NextResponse.json({ error_message: "Please try again" }, { status: 500 })
-    }
-  }
-}
+import { withApiKey } from '@/lib/api-helpers'
+import {
+  createShortUrlWithApiKey,
+  getShortUrlsWithApiKey,
+} from '@/lib/short-url-helpers'
+import { ShortUrl } from '@/lib/short-url-types'
+import { NextResponse } from 'next/server'
 
 // GET /api/v1 returns list of all short urls
 export async function GET(request: Request) {

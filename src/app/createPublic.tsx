@@ -19,6 +19,7 @@ import {
   FormMessage,
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
+import { clientEnvironment } from '@/lib/env/client-env'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Copy } from 'lucide-react'
 import Link from 'next/link'
@@ -78,7 +79,7 @@ export default function Page() {
                 <Copy
                   onClick={() => {
                     navigator.clipboard.writeText(
-                      `${process.env.NEXT_PUBLIC_APP_URL}/${lastShortUrl}`,
+                      `${clientEnvironment.NEXT_PUBLIC_APP_URL}/${lastShortUrl}`,
                     )
                     toast.success('Copied to clipboard')
                   }}
@@ -89,7 +90,7 @@ export default function Page() {
                 className="text-center text-sm font-semibold"
                 href={`/${lastShortUrl}`}
               >
-                {process.env.NEXT_PUBLIC_APP_URL?.split('://')[1]}/
+                {clientEnvironment.NEXT_PUBLIC_APP_URL.split('://')[1]}/
                 {lastShortUrl}
               </Link>
             </div>

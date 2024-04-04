@@ -1,16 +1,11 @@
-"use client"
+'use client'
 
-import { useState } from "react"
-import Link from "next/link"
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
-import { BarElement, CategoryScale, Chart as ChartJS, LinearScale, Tooltip } from "chart.js"
-import { ArrowUp, BarChart, Copy, Droplet, Eye, Loader2, Pencil, Settings, Trash } from "lucide-react"
-import { Bar } from "react-chartjs-2"
-import { toast } from "sonner"
-
-import { deleteShortUrl, getShortUrlsSessioned } from "@/lib/auth-helpers"
-import { cn, smallDate } from "@/lib/utils"
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from '@/components/ui/accordion'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -21,8 +16,8 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from "@/components/ui/alert-dialog"
-import { Input } from "@/components/ui/input"
+} from '@/components/ui/alert-dialog'
+import { Input } from '@/components/ui/input'
 import {
   Menubar,
   MenubarContent,
@@ -31,9 +26,44 @@ import {
   MenubarSeparator,
   MenubarShortcut,
   MenubarTrigger,
-} from "@/components/ui/menubar"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import EditForm from "./editUrl"
+} from '@/components/ui/menubar'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
+import { clientEnvironment } from '@/lib/env/client-env'
+import {
+  deleteShortUrlSessioned,
+  getShortUrlsSessioned,
+} from '@/lib/short-url-helpers'
+import { cn, smallDate } from '@/lib/utils'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import {
+  BarElement,
+  CategoryScale,
+  Chart as ChartJS,
+  LinearScale,
+  Tooltip,
+} from 'chart.js'
+import {
+  ArrowUp,
+  BarChart,
+  Copy,
+  Droplet,
+  Eye,
+  Loader2,
+  Pencil,
+  Settings,
+  Trash,
+} from 'lucide-react'
+import Link from 'next/link'
+import { useState } from 'react'
+import { Bar } from 'react-chartjs-2'
+import { toast } from 'sonner'
+import EditForm from './editUrl'
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Tooltip)
 
@@ -41,7 +71,7 @@ const Page = () => {
   const queryClient = useQueryClient()
 
   const { isPending, isError, data } = useQuery({
-    queryKey: ["shortUrls"],
+    queryKey: ['shortUrls'],
     queryFn: async () => {
       return await getShortUrlsSessioned()
     },
@@ -49,19 +79,17 @@ const Page = () => {
 
   const mutation = useMutation({
     mutationFn: async ({ id }: { id: string }) => {
-      return await deleteShortUrl({
-        id,
-      })
+      await deleteShortUrlSessioned(id)
     },
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: ["shortUrls"],
+        queryKey: ['shortUrls'],
       })
     },
   })
 
-  const [sortBy, setSortBy] = useState("createdAt")
-  const [filterBy, setFilterBy] = useState("")
+  const [sortBy, setSortBy] = useState('createdAt')
+  const [filterBy, setFilterBy] = useState('')
 
   if (isError) {
     return (
@@ -82,9 +110,15 @@ const Page = () => {
   const getGraphData = (visits: any) => {
     if (!visits) return []
 
-    let data = visits.map((item: any) => [item.split("x")[0], Number(item.split("x")[1])])
+    let data = visits.map((item: any) => [
+      item.split('x')[0],
+      Number(item.split('x')[1]),
+    ])
 
-    data = data.length < 7 ? [...data, ...Array(7 - data.length).fill(["", 0])] : data.slice(0, 7)
+    data =
+      data.length < 7
+        ? [...data, ...Array(7 - data.length).fill(['', 0])]
+        : data.slice(0, 7)
 
     return data
   }
@@ -99,30 +133,36 @@ const Page = () => {
 
   // sorting
   const sortedData = filtered?.sort((a: any, b: any) => {
-    if (sortBy === "updatedAt") {
+    if (sortBy === 'updatedAt') {
       return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
     }
-    if (sortBy === "views") {
+    if (sortBy === 'views') {
       return (
         getGraphData(b.visits).reduce((a: any, b: any) => a + b[1], 0) -
         getGraphData(a.visits).reduce((a: any, b: any) => a + b[1], 0)
       )
     }
-    if (sortBy === "todayViews") {
+    if (sortBy === 'todayViews') {
       const zeroTime = new Date().toISOString()
-      const localTime = new Date(new Date(zeroTime).getTime() + a.timeOffset * -60 * 1000)
+      const localTime = new Date(
+        new Date(zeroTime).getTime() + a.timeOffset * -60 * 1000,
+      )
       const onlyDate = smallDate(localTime)
 
       const aVisits = a.visits || []
       const bVisits = b.visits || []
 
-      const aTodayVisits = aVisits[0]?.startsWith(onlyDate) ? Number(aVisits[0].split("x")[1]) : 0
+      const aTodayVisits = aVisits[0]?.startsWith(onlyDate)
+        ? Number(aVisits[0].split('x')[1])
+        : 0
 
-      const bTodayVisits = bVisits[0]?.startsWith(onlyDate) ? Number(bVisits[0].split("x")[1]) : 0
+      const bTodayVisits = bVisits[0]?.startsWith(onlyDate)
+        ? Number(bVisits[0].split('x')[1])
+        : 0
 
       return bTodayVisits - aTodayVisits
     }
-    if (sortBy === "recentlyVisited") {
+    if (sortBy === 'recentlyVisited') {
       return new Date(b.lastVisit).getTime() - new Date(a.lastVisit).getTime()
     }
     return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
@@ -130,19 +170,22 @@ const Page = () => {
 
   // searching
   const xData = sortedData.map((item: any) => {
-    let id_html = `${process.env.NEXT_PUBLIC_APP_URL?.split("//")[1]}/${item.id}`.replace(
-      new RegExp(filterBy, "gi"),
-      (match: any) => `<span class="bg-yellow-200">${match}</span>`
-    )
+    let id_html =
+      `${clientEnvironment.NEXT_PUBLIC_APP_URL?.split('//')[1]}/${item.id}`.replace(
+        new RegExp(filterBy, 'gi'),
+        (match: any) => `<span class="bg-yellow-200">${match}</span>`,
+      )
 
     let title_html = item.title?.replace(
-      new RegExp(filterBy, "gi"),
-      (match: any) => `<span class="bg-yellow-200 dark:text-black">${match}</span>`
+      new RegExp(filterBy, 'gi'),
+      (match: any) =>
+        `<span class="bg-yellow-200 dark:text-black">${match}</span>`,
     )
 
     let url_html = item.url.replace(
-      new RegExp(filterBy, "gi"),
-      (match: any) => `<span class="bg-yellow-200 dark:text-black">${match}</span>`
+      new RegExp(filterBy, 'gi'),
+      (match: any) =>
+        `<span class="bg-yellow-200 dark:text-black">${match}</span>`,
     )
 
     return {
@@ -201,14 +244,14 @@ const Page = () => {
 
       <div
         className={cn(
-          "flex flex-col space-y-3",
-          !xData.length && "mt-[470px]",
-          xData.length === 1 && "mb-[396px]",
-          xData.length === 2 && "mb-[310px]",
-          xData.length === 3 && "mb-[224px]",
-          xData.length === 4 && "mb-[138px]",
-          xData.length === 5 && "mb-[52px]",
-          xData.length > 5 && "mb-20"
+          'flex flex-col space-y-3',
+          !xData.length && 'mt-[470px]',
+          xData.length === 1 && 'mb-[396px]',
+          xData.length === 2 && 'mb-[310px]',
+          xData.length === 3 && 'mb-[224px]',
+          xData.length === 4 && 'mb-[138px]',
+          xData.length === 5 && 'mb-[52px]',
+          xData.length > 5 && 'mb-20',
         )}
       >
         {xData.map(
@@ -226,30 +269,41 @@ const Page = () => {
             url_html: string
             title_html: string
           }) => (
-            <div className="flex flex-col space-y-1.5 rounded-md border bg-background p-3 text-sm" key={shortUrl.id}>
+            <div
+              className="flex flex-col space-y-1.5 rounded-md border bg-background p-3 text-sm"
+              key={shortUrl.id}
+            >
               <div className="flex flex-col gap-1.5 font-mono text-xs">
                 <div className="flex items-center justify-end">
                   <div className="flex items-center gap-1 px-2">
                     {shortUrl?.visits?.length ? (
                       <>
                         {smallDate(
-                          new Date(new Date(new Date().toISOString()).getTime() + shortUrl.timeOffset * -60 * 1000)
-                        ) === shortUrl.visits[0].split("x")[0] ? (
+                          new Date(
+                            new Date(new Date().toISOString()).getTime() +
+                              shortUrl.timeOffset * -60 * 1000,
+                          ),
+                        ) === shortUrl.visits[0].split('x')[0] ? (
                           <>
                             <ArrowUp className="h-3 w-3 text-green-500" />
-                            <p className="flex text-green-500">{shortUrl.visits[0].split("x")[1]}</p>
+                            <p className="flex text-green-500">
+                              {shortUrl.visits[0].split('x')[1]}
+                            </p>
                           </>
                         ) : (
-                          ""
+                          ''
                         )}
                       </>
                     ) : (
-                      ""
+                      ''
                     )}
                     <Eye className="h-3 w-3 text-foreground" />
                     <p className="pt-px">
                       {shortUrl?.visits?.length
-                        ? getGraphData(shortUrl.visits).reduce((a: any, b: any) => a + b[1], 0)
+                        ? getGraphData(shortUrl.visits).reduce(
+                            (a: any, b: any) => a + b[1],
+                            0,
+                          )
                         : 0}
                     </p>
                   </div>
@@ -267,8 +321,10 @@ const Page = () => {
                     <Copy
                       className="h-3.5 w-3.5 cursor-pointer text-slate-500"
                       onClick={() => {
-                        navigator.clipboard.writeText(`${process.env.NEXT_PUBLIC_APP_URL}/${shortUrl.id}`)
-                        toast.success("Copied to clipboard")
+                        navigator.clipboard.writeText(
+                          `${clientEnvironment.NEXT_PUBLIC_APP_URL}/${shortUrl.id}`,
+                        )
+                        toast.success('Copied to clipboard')
                       }}
                     />
 
@@ -280,7 +336,11 @@ const Page = () => {
                           <Settings className="h-3.5 w-3.5 cursor-pointer text-blue-600" />
                         </MenubarTrigger>
                         <MenubarContent className="absolute -right-[35px] top-0.5">
-                          <EditForm id={shortUrl.id} title={shortUrl.title} url={shortUrl.url} />
+                          <EditForm
+                            id={shortUrl.id}
+                            title={shortUrl.title}
+                            url={shortUrl.url}
+                          />
 
                           <MenubarSeparator />
 
@@ -294,19 +354,26 @@ const Page = () => {
                                 <AlertDialogTitle className="text-sm">
                                   Do you want to delete
                                   <br />
-                                  {process.env.NEXT_PUBLIC_APP_URL?.split("//")[1]}/{shortUrl.id}?
+                                  {
+                                    clientEnvironment.NEXT_PUBLIC_APP_URL?.split(
+                                      '//',
+                                    )[1]
+                                  }
+                                  /{shortUrl.id}?
                                 </AlertDialogTitle>
                                 <AlertDialogDescription className="line-clamp-2 break-all text-xs">
                                   URL: {shortUrl.url}
                                 </AlertDialogDescription>
                               </AlertDialogHeader>
                               <AlertDialogFooter className="flex gap-2">
-                                <AlertDialogCancel className="px-8 text-xs">Cancel</AlertDialogCancel>
+                                <AlertDialogCancel className="px-8 text-xs">
+                                  Cancel
+                                </AlertDialogCancel>
                                 <AlertDialogAction
                                   className="bg-red-500 px-8 text-xs text-white"
                                   onClick={() => {
                                     mutation.mutate({ id: shortUrl.id })
-                                    toast.info("Deleted")
+                                    toast.info('Deleted')
                                   }}
                                 >
                                   Delete
@@ -344,19 +411,23 @@ const Page = () => {
                 />
               </div>
 
-              <Accordion className={cn(shortUrl?.visits?.length ? "block" : "hidden")} type="single" collapsible>
+              <Accordion
+                className={cn(shortUrl?.visits?.length ? 'block' : 'hidden')}
+                type="single"
+                collapsible
+              >
                 <AccordionItem className="!border-b-0" value="item-1">
                   <AccordionTrigger className="py-0 text-foreground/70">
                     <p className="flex items-center gap-2 font-sans text-[0.6rem] font-light text-foreground/70">
-                      <BarChart className="h-3 w-3" />{" "}
+                      <BarChart className="h-3 w-3" />{' '}
                       {shortUrl?.lastVisit && (
                         <span>
-                          Last visited:{" "}
+                          Last visited:{' '}
                           {shortUrl?.lastVisit
                             .toISOString()
-                            .replaceAll("-", "/")
-                            .replace("T", ", ")
-                            .replace("Z", "")
+                            .replaceAll('-', '/')
+                            .replace('T', ', ')
+                            .replace('Z', '')
                             .slice(0, -4)}
                         </span>
                       )}
@@ -368,15 +439,17 @@ const Page = () => {
                         labels: getGraphData(shortUrl.visits)
                           .reverse()
                           .map((item: any) => {
-                            return item[0] ? `${item[0].slice(4, 6)}-${item[0].slice(2, 4)}-${item[0].slice(0, 2)}` : ""
+                            return item[0]
+                              ? `${item[0].slice(4, 6)}-${item[0].slice(2, 4)}-${item[0].slice(0, 2)}`
+                              : ''
                           }),
                         datasets: [
                           {
-                            label: "Visits",
+                            label: 'Visits',
                             data: getGraphData(shortUrl.visits)
                               .reverse()
                               .map((item: any) => item[1]),
-                            backgroundColor: "#f43f5e",
+                            backgroundColor: '#f43f5e',
                           },
                         ],
                       }}
@@ -385,7 +458,7 @@ const Page = () => {
                         scales: {
                           y: {
                             beginAtZero: true,
-                            position: "right",
+                            position: 'right',
                           },
                         },
                         plugins: {
@@ -399,7 +472,7 @@ const Page = () => {
                 </AccordionItem>
               </Accordion>
             </div>
-          )
+          ),
         )}
       </div>
     </>

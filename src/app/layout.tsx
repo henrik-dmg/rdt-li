@@ -1,4 +1,5 @@
 import './globals.css'
+import { clientEnvironment } from '@/lib/env/client-env'
 import { fontMono, fontSans } from '@/lib/fonts'
 import { cn } from '@/lib/utils'
 import type { Metadata } from 'next'
@@ -38,12 +39,12 @@ export default function RootLayout({
       </body>
 
       {/* optional: umami analytics */}
-      {process.env.NEXT_PUBLIC_UMAMI_URL && (
+      {clientEnvironment.NEXT_PUBLIC_UMAMI_URL && (
         <Script
           async
           defer
-          src={`${process.env.NEXT_PUBLIC_UMAMI_URL}/script.js`}
-          data-website-id={`${process.env.NEXT_PUBLIC_UMAMI_WEBSITE_ID}`}
+          src={`${clientEnvironment.NEXT_PUBLIC_UMAMI_URL}/script.js`}
+          data-website-id={`${clientEnvironment.NEXT_PUBLIC_UMAMI_WEBSITE_ID}`}
         />
       )}
     </html>
