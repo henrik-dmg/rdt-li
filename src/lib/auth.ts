@@ -6,7 +6,7 @@ import { NextAuthOptions } from 'next-auth'
 import type { User } from 'next-auth'
 import { Adapter } from 'next-auth/adapters'
 import Auth0Provider from 'next-auth/providers/auth0'
-import { serverEnvironment } from './env'
+import { serverEnvironment } from './env/server-env'
 
 export const authOptions: NextAuthOptions = {
   // debug: process.env.NODE_ENV === 'development',

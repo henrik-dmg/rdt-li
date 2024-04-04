@@ -34,7 +34,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { clientEnvironment } from '@/lib/env'
+import { clientEnvironment } from '@/lib/env/client-env'
 import {
   deleteShortUrlSessioned,
   getShortUrlsSessioned,

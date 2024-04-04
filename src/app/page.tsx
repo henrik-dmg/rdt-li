@@ -1,7 +1,7 @@
 import CreateShortUrls from '@/app/createPublic'
 import { db } from '@/lib/db'
 import { shortUrls, users } from '@/lib/db/schema'
-import { clientEnvironment } from '@/lib/env'
+import { clientEnvironment } from '@/lib/env/client-env'
 import { count, isNotNull, isNull } from 'drizzle-orm'
 import { Anchor, ArrowDown, ExternalLink, Star, User } from 'lucide-react'
 import Image from 'next/image'

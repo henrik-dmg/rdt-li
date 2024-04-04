@@ -1,5 +1,5 @@
 import './globals.css'
-import { clientEnvironment } from '@/lib/env'
+import { clientEnvironment } from '@/lib/env/client-env'
 import { fontMono, fontSans } from '@/lib/fonts'
 import { cn } from '@/lib/utils'
 import type { Metadata } from 'next'

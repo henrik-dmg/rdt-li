@@ -1,6 +1,6 @@
 import { drizzle, PostgresJsDatabase } from 'drizzle-orm/postgres-js'
 import postgres from 'postgres'
-import { serverEnvironment } from '../env'
+import { serverEnvironment } from '../env/server-env'
 
 const queryClient = postgres(serverEnvironment.POSTGRES_URL as string)
 

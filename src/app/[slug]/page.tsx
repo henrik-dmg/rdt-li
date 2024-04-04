@@ -1,6 +1,6 @@
 import { db } from '@/lib/db'
 import { shortUrls } from '@/lib/db/schema'
-import { clientEnvironment } from '@/lib/env'
+import { clientEnvironment } from '@/lib/env/client-env'
 import Link from 'next/link'
 import { permanentRedirect } from 'next/navigation'
 import retry from 'p-retry'

@@ -1,4 +1,4 @@
-import { clientEnvironment } from '@/lib/env'
+import { clientEnvironment } from '@/lib/env/client-env'
 import { NextResponse } from 'next/server'
 
 // GET /api/v1/docs for API docs :D

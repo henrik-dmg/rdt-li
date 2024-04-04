@@ -3,7 +3,7 @@
 import { authOptions } from '@/lib/auth'
 import { db } from '@/lib/db'
 import { users } from '@/lib/db/schema'
-import { clientEnvironment, serverEnvironment } from '@/lib/env'
+import { serverEnvironment } from '@/lib/env/server-env'
 import { ShortUrlApiError, unauthorizedError } from '@/lib/short-url-types'
 import { nanoid } from '@/lib/utils'
 import { eq } from 'drizzle-orm'
