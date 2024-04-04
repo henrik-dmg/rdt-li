@@ -34,7 +34,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { deleteShortUrl, getShortUrlsSessioned } from '@/lib/auth-helpers'
+import {
+  deleteShortUrlSessioned,
+  getShortUrlsSessioned,
+} from '@/lib/short-url-helpers'
 import { cn, smallDate } from '@/lib/utils'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import {
@@ -75,9 +78,7 @@ const Page = () => {
 
   const mutation = useMutation({
     mutationFn: async ({ id }: { id: string }) => {
-      return await deleteShortUrl({
-        id,
-      })
+      await deleteShortUrlSessioned(id)
     },
     onSuccess: () => {
       queryClient.invalidateQueries({
