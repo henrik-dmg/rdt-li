@@ -8,9 +8,13 @@ export type ShortUrl = {
   timeOffset: number
 }
 
-export const unauthorizedError = {
-  error: {
-    code: "401",
-    message: "Unauthorized",
-  },
+export class ShortUrlApiError extends Error {
+  code: number
+
+  constructor(code: number, message: string) {
+    super(message)
+    this.code = code
+  }
 }
+
+export const unauthorizedError = new ShortUrlApiError(401, "Unauthorized")

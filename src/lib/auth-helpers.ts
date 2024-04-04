@@ -5,7 +5,7 @@ import { and, eq, like } from "drizzle-orm"
 import { getServerSession } from "next-auth"
 
 import { authOptions } from "@/lib/auth"
-import { ShortUrl, unauthorizedError } from "@/lib/auth-types"
+import { ShortUrl, ShortUrlApiError, unauthorizedError } from "@/lib/auth-types"
 import { db } from "@/lib/db"
 import { shortUrls, users } from "@/lib/db/schema"
 import { nanoid, sanitize } from "@/lib/utils"
@@ -121,7 +121,7 @@ export const getApiKey = async ({ intent }: { intent: string }) => {
 export const getShortUrlsSessioned = async () => {
   const session = await getServerSession(authOptions)
   if (!session) {
-    return unauthorizedError
+    throw unauthorizedError
   }
 
   return await getShortUrlsUnsafe(session.user.id)
@@ -130,7 +130,7 @@ export const getShortUrlsSessioned = async () => {
 export const getShortUrlsWithApiKey = async (apiKey: string) => {
   const userId = await getUserIdForApiKey(apiKey)
   if (!userId) {
-    return unauthorizedError
+    throw unauthorizedError
   }
 
   return await getShortUrlsUnsafe(userId)
@@ -145,7 +145,7 @@ const getShortUrlsUnsafe = async (userId: string) => {
 export const createShortUrlSessioned = async (urlPayload: ShortUrl) => {
   const session = await getServerSession(authOptions)
   if (!session) {
-    return unauthorizedError
+    throw unauthorizedError
   }
 
   return await createShortUrlUnsafe(urlPayload, session.user.id)
@@ -154,22 +154,17 @@ export const createShortUrlSessioned = async (urlPayload: ShortUrl) => {
 export const createShortUrlWithApiKey = async (urlPayload: ShortUrl, apiKey: string) => {
   const userId = await getUserIdForApiKey(apiKey)
   if (!userId) {
-    return unauthorizedError
+    throw unauthorizedError
   }
   return await createShortUrlUnsafe(urlPayload, userId)
 }
 
-const createShortUrlUnsafe = async (urlPayload: ShortUrl, userId: string) => {
+async function createShortUrlUnsafe(urlPayload: ShortUrl, userId: string): Promise<ShortUrl> {
   const id = sanitize(urlPayload.id || "") || nanoid(6)
   const url = new URL(urlPayload.url)
 
   if (id.length < 4) {
-    return {
-      error: {
-        code: "400",
-        message: "Short URL must be at least 4 characters long",
-      },
-    }
+    throw new ShortUrlApiError(400, "Short URL must be at least 4 characters long")
   }
 
   for (const blockedUrl of blocked) {
@@ -180,17 +175,12 @@ const createShortUrlUnsafe = async (urlPayload: ShortUrl, userId: string) => {
         console.log("Error deleting old shortUrls")
       }
 
-      return {
-        error: {
-          code: 406,
-          message: "URL not acceptable or is blocked",
-        },
-      }
+      throw new ShortUrlApiError(406, "URL not acceptable or is blocked")
     }
   }
 
   if (urlPayload.clickLimit && isNaN(urlPayload.clickLimit)) {
-    return { error: { code: "400", message: "Click limit is not a number" } }
+    throw new ShortUrlApiError(400, "Click limit is not a number")
   }
 
   const data = {
@@ -207,31 +197,17 @@ const createShortUrlUnsafe = async (urlPayload: ShortUrl, userId: string) => {
   }
 
   if (data.id.startsWith("_")) {
-    return {
-      error: {
-        code: "400",
-        message: "Short URL cannot start with an underscore",
-      },
-    }
+    throw new ShortUrlApiError(400, "Short URL cannot start with an underscore")
   }
 
   try {
-    return await db.insert(shortUrls).values(data)
+    await db.insert(shortUrls).values(data)
+    return data
   } catch (error: any) {
     if (error?.code === "23505") {
-      return {
-        error: {
-          code: "23505",
-          message: "Short URL already exists",
-        },
-      }
+      throw new ShortUrlApiError(400, "Short URL already exists")
     } else {
-      return {
-        error: {
-          code: "500",
-          message: error.message,
-        },
-      }
+      throw new ShortUrlApiError(500, error.message)
     }
   }
 }
