@@ -5,7 +5,7 @@ import { cn } from '@/lib/utils'
 import type { Metadata } from 'next'
 import Script from 'next/script'
 import { Toaster } from 'sonner'
-import Provider from './provider'
+import Provider from '../components/provider'
 
 export const metadata: Metadata = {
   title: 'Redirect.link',

@@ -55,7 +55,7 @@ import Link from 'next/link'
 import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 import * as z from 'zod'
-import ShowUrl from './shortUrls'
+import ShowUrl from '../../../components/url-table'
 
 const formSchema = z.object({
   id: z.string().max(128),
@@ -178,7 +178,7 @@ export default function Page() {
                         <MenubarContent className="absolute -right-6">
                           <MenubarItem>
                             <Link
-                              href={'/x/key'}
+                              href={'/admin/key'}
                               className="flex w-full justify-end text-xs"
                             >
                               API Key

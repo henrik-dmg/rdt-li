@@ -2,6 +2,7 @@
 
 import { getUserIdForApiKey } from '@/lib/api-helpers'
 import { authOptions } from '@/lib/auth'
+import { blocked } from '@/lib/blocked-urls'
 import { db } from '@/lib/db'
 import { shortUrls } from '@/lib/db/schema'
 import {
@@ -11,7 +12,6 @@ import {
   unauthorizedError,
 } from '@/lib/short-url-types'
 import { nanoid, sanitize } from '@/lib/utils'
-import { blocked } from '@/url-center/blocked'
 import { and, eq, like, sql } from 'drizzle-orm'
 import { getServerSession } from 'next-auth'
 

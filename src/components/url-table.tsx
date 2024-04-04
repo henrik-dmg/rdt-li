@@ -63,11 +63,11 @@ import Link from 'next/link'
 import { useState } from 'react'
 import { Bar } from 'react-chartjs-2'
 import { toast } from 'sonner'
-import EditForm from './editUrl'
+import EditForm from './edit-url-widget'
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Tooltip)
 
-const Page = () => {
+const UrlTable = () => {
   const queryClient = useQueryClient()
 
   const { isPending, isError, data } = useQuery({
@@ -479,4 +479,4 @@ const Page = () => {
   )
 }
 
-export default Page
+export default UrlTable

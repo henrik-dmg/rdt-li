@@ -1,4 +1,4 @@
-import CreateShortUrls from '@/app/createPublic'
+import CreateShortUrls from '@/components/create-public-url-widget'
 import { db } from '@/lib/db'
 import { shortUrls, users } from '@/lib/db/schema'
 import { clientEnvironment } from '@/lib/env/client-env'
@@ -63,7 +63,7 @@ export default async function Page() {
 
           <div className="mt-3 flex space-x-4">
             <Link
-              href="/x"
+              href="/admin"
               className="flex h-10 items-center rounded-md bg-blue-500 px-8 text-sm text-white"
             >
               Login

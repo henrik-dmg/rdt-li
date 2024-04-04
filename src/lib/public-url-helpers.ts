@@ -1,9 +1,9 @@
 'use server'
 
+import { blocked } from '@/lib/blocked-urls'
 import { db } from '@/lib/db'
 import { shortUrls } from '@/lib/db/schema'
 import { nanoid } from '@/lib/utils'
-import { blocked } from '@/url-center/blocked'
 import { and, count, isNull, like, lt, sql } from 'drizzle-orm'
 
 export const getPublicShortUrls = async () => {

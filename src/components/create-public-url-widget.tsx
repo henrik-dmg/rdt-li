@@ -27,13 +27,13 @@ import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 import * as z from 'zod'
-import { createPublicShortUrl } from './apis/publicUrls'
+import { createPublicShortUrl } from '../lib/public-url-helpers'
 
 const formSchema = z.object({
   url: z.string().max(2048).url(),
 })
 
-export default function Page() {
+export default function CreatePublicUrlWidget() {
   const [showPublic, setShowPublic] = useState(false)
   const [lastShortUrl, setLastShortUrl] = useState('')
 

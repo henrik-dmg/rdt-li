@@ -1,7 +1,7 @@
 'use client'
 
 import { useQuery, useQueryClient } from '@tanstack/react-query'
-import { getPublicShortUrls } from '../apis/publicUrls'
+import { getPublicShortUrls } from '../../lib/public-url-helpers'
 
 const Page = () => {
   const { isPending, isError, data } = useQuery({
