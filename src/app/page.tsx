@@ -1,32 +1,23 @@
-import CreateShortUrls from '@/app/createPublic'
-import { db } from '@/lib/db'
-import { shortUrls, users } from '@/lib/db/schema'
-import { count, isNotNull, isNull } from 'drizzle-orm'
-import { Anchor, ArrowDown, ExternalLink, Star, User } from 'lucide-react'
-import Image from 'next/image'
-import Link from 'next/link'
+import Image from "next/image"
+import Link from "next/link"
+import CreateShortUrls from "@/app/createPublic"
+import { count, isNotNull, isNull } from "drizzle-orm"
+import { Anchor, ArrowDown, ExternalLink, Star, User } from "lucide-react"
+
+import { db } from "@/lib/db"
+import { shortUrls, users } from "@/lib/db/schema"
 
 export const revalidate = 60
 
 export default async function Page() {
-  const getUsersCount = (await db.select({ value: count() }).from(users))[0]
+  const getUsersCount = (await db.select({ value: count() }).from(users))[0].value
+  const getShortUrlsCount = (await db.select({ value: count() }).from(shortUrls).where(isNotNull(shortUrls.userId)))[0]
     .value
-  const getShortUrlsCount = (
-    await db
-      .select({ value: count() })
-      .from(shortUrls)
-      .where(isNotNull(shortUrls.userId))
-  )[0].value
   const getPublicShortUrlsCount = (
-    await db
-      .select({ value: count() })
-      .from(shortUrls)
-      .where(isNull(shortUrls.userId))
+    await db.select({ value: count() }).from(shortUrls).where(isNull(shortUrls.userId))
   )[0].value
 
-  const githubInfo = await fetch(
-    'https://api.github.com/repos/nrjdalal/rdt-li',
-  ).then((res) => res.json())
+  const githubInfo = await fetch("https://api.github.com/repos/nrjdalal/rdt-li").then((res) => res.json())
 
   return (
     <main className="container flex max-w-screen-md flex-col items-center px-5">
@@ -41,30 +32,23 @@ export default async function Page() {
           </Link>
 
           <h1 className="font-heading max-w-md text-3xl sm:text-4xl">
-            <span className="font-mono font-semibold">
-              {process.env.NEXT_PUBLIC_APP_URL?.split('://')[1]}
-            </span>{' '}
-            self hostable open source URL shortener
+            <span className="font-mono font-semibold">{process.env.NEXT_PUBLIC_APP_URL?.split("://")[1]}</span> self
+            hostable open source URL shortener
           </h1>
 
           <CreateShortUrls />
 
           <p className="max-w-[42rem] leading-normal text-muted-foreground sm:text-xl sm:leading-8">
-            {process.env.NEXT_PUBLIC_APP_URL?.split('://')[1]} self hostable,
-            feature rich, minimalistic and open source URL shortener. Built with
-            Next.js, Drizzle, NextAuth and Postgres.
+            {process.env.NEXT_PUBLIC_APP_URL?.split("://")[1]} self hostable, feature rich, minimalistic and open source
+            URL shortener. Built with Next.js, Drizzle, NextAuth and Postgres.
           </p>
 
           <p className="text-xs">
-            Try now or <span className="font-semibold">self host</span> (check
-            GitHub for more information)
+            Try now or <span className="font-semibold">self host</span> (check GitHub for more information)
           </p>
 
           <div className="mt-3 flex space-x-4">
-            <Link
-              href="/x"
-              className="flex h-10 items-center rounded-md bg-blue-500 px-8 text-sm text-white"
-            >
+            <Link href="/x" className="flex h-10 items-center rounded-md bg-blue-500 px-8 text-sm text-white">
               Login
             </Link>
             <Link
@@ -76,16 +60,14 @@ export default async function Page() {
               <p>Github</p>
               <div className="absolute -top-4 right-2.5 flex items-center gap-1 rounded-md bg-foreground px-2 text-background">
                 <Star className="h-2.5 w-2.5" />
-                <p className="pt-0.5 font-mono text-[0.6rem] font-bold">
-                  {githubInfo?.stargazers_count || 0}
-                </p>
+                <p className="pt-0.5 font-mono text-[0.6rem] font-bold">{githubInfo?.stargazers_count || 0}</p>
               </div>
             </Link>
           </div>
         </div>
       </section>
 
-      {/* 
+      {/*
         // ~ Some stats
       */}
       <div className="mb-20 grid grid-cols-2 gap-4 text-black">
@@ -105,22 +87,15 @@ export default async function Page() {
           <p className="text-xs">Short Links</p>
           <p>{getShortUrlsCount}</p>
         </div>
-        {(process.env.NEXT_PUBLIC_UMAMI_URL ||
-          process.env.NODE_ENV === 'development') && (
+        {(process.env.NEXT_PUBLIC_UMAMI_URL || process.env.NODE_ENV === "development") && (
           <Link
             className="col-span-2 flex flex-col items-center space-y-1 rounded-md border-2 border-red-400 bg-red-100 px-8 py-2"
-            href={
-              `${process.env.NEXT_PUBLIC_UMAMI_SHARE_URL}` || 'https://umami.is'
-            }
+            href={`${process.env.NEXT_PUBLIC_UMAMI_SHARE_URL}` || "https://umami.is"}
             target="_blank"
           >
             <p className="flex gap-1 text-xs">
-              Optional Analytics by{' '}
-              <svg
-                className="h-5 w-5 rounded-full"
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 428 389.11"
-              >
+              Optional Analytics by{" "}
+              <svg className="h-5 w-5 rounded-full" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 428 389.11">
                 <g data-name="Layer 2">
                   <g data-name="Layer 4">
                     <circle
@@ -135,7 +110,7 @@ export default async function Page() {
                     <path d="M413 134.11H15.29a15 15 0 0 0-15 15v15.3C.12 168 0 171.52 0 175.11c0 118.19 95.81 214 214 214 116.4 0 211.1-92.94 213.93-208.67 0-.44.07-.88.07-1.33v-30a15 15 0 0 0-15-15z"></path>
                   </g>
                 </g>
-              </svg>{' '}
+              </svg>{" "}
               Umami
               <ExternalLink className="h-4 w-4 text-red-400" />
             </p>
@@ -143,28 +118,13 @@ export default async function Page() {
         )}
       </div>
 
-      <h2 className="mb-2 flex cursor-default items-center text-xl font-medium">
-        <ArrowDown className="text-blue-200" />
-        <span className="ml-1 text-blue-500">Image Demo</span>
-        <ArrowDown className="text-blue-300" />
-      </h2>
-
-      <Image
-        src={'/ABA1DFD8-2816-4509-8691-DF95F7D82EB6.jpeg'}
-        alt="rdt.li screenshot"
-        width={1080}
-        height={1080}
-      />
-
       <section id="open-source" className="container py-8 md:py-12 lg:py-24">
         <div className="mx-auto flex max-w-[58rem] flex-col items-center justify-center gap-4 text-center">
-          <h2 className="font-heading text-3xl leading-[1.1] sm:text-3xl">
-            Proudly Open Source
-          </h2>
+          <h2 className="font-heading text-3xl leading-[1.1] sm:text-3xl">Proudly Open Source</h2>
           <p className="max-w-[85%] text-xs leading-normal text-muted-foreground">
             Redirect.link is open source and powered by open source software.
             <br />
-            The source code is available on{' '}
+            The source code is available on{" "}
             <Link
               href="https://rdt.li/github"
               target="_blank"
@@ -178,22 +138,13 @@ export default async function Page() {
 
           <div className="mt-4 flex gap-2">
             <Link href="https://vercel.com" target="_blank">
-              <Image
-                src="/powered-by-vercel.svg"
-                alt="Powered by Vercel"
-                height={32}
-                width={128}
-              />
+              <Image src="/powered-by-vercel.svg" alt="Powered by Vercel" height={32} width={128} />
             </Link>
 
-            {(process.env.NEXT_PUBLIC_UMAMI_URL ||
-              process.env.NODE_ENV === 'development') && (
+            {(process.env.NEXT_PUBLIC_UMAMI_URL || process.env.NODE_ENV === "development") && (
               <Link
                 className="flex h-[26.56px] items-center gap-2 rounded-sm bg-black px-2 text-[0.6rem] text-background"
-                href={
-                  `${process.env.NEXT_PUBLIC_UMAMI_SHARE_URL}` ||
-                  'https://umami.is'
-                }
+                href={`${process.env.NEXT_PUBLIC_UMAMI_SHARE_URL}` || "https://umami.is"}
                 target="_blank"
               >
                 <svg
@@ -226,14 +177,11 @@ export default async function Page() {
           </div>
 
           <p className="text-xs">
-            <Link href={'/public'}>{getPublicShortUrlsCount} </Link>
-            public {getPublicShortUrlsCount === 1 ? 'link' : 'links'} today.
+            <Link href={"/public"}>{getPublicShortUrlsCount} </Link>
+            public {getPublicShortUrlsCount === 1 ? "link" : "links"} today.
             <br />
-            Report abuse at this{' '}
-            <Link
-              className="border-b border-foreground/50"
-              href="mailto:rdt-li-abuse@nrjdalal.com"
-            >
+            Report abuse at this{" "}
+            <Link className="border-b border-foreground/50" href="mailto:henrik@panhans.dev">
               email
             </Link>
             .

@@ -9,7 +9,7 @@ export async function GET() {
     },
     methods: {
       GET: {
-        description: "To get short urls",
+        description: "Returns all short URLs for the user",
       },
       POST: {
         description: "Creates a new shortened URL",
