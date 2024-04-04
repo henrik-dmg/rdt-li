@@ -17,4 +17,4 @@ export class ShortUrlApiError extends Error {
   }
 }
 
-export const unauthorizedError = new ShortUrlApiError(401, "Unauthorized")
+export const unauthorizedError = new ShortUrlApiError(401, 'Unauthorized')

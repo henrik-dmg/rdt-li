@@ -1,14 +1,13 @@
-"use server"
+'use server'
 
-import { blocked } from "@/url-center/blocked"
-import { and, eq, like } from "drizzle-orm"
-import { getServerSession } from "next-auth"
-
-import { authOptions } from "@/lib/auth"
-import { ShortUrl, ShortUrlApiError, unauthorizedError } from "@/lib/auth-types"
-import { db } from "@/lib/db"
-import { shortUrls, users } from "@/lib/db/schema"
-import { nanoid, sanitize } from "@/lib/utils"
+import { authOptions } from '@/lib/auth'
+import { ShortUrl, ShortUrlApiError, unauthorizedError } from '@/lib/auth-types'
+import { db } from '@/lib/db'
+import { shortUrls, users } from '@/lib/db/schema'
+import { nanoid, sanitize } from '@/lib/utils'
+import { blocked } from '@/url-center/blocked'
+import { and, eq, like } from 'drizzle-orm'
+import { getServerSession } from 'next-auth'
 
 // MARK: - Helpers
 
@@ -28,24 +27,32 @@ export const getUserIdForApiKey = async (apiKey: string) => {
   const encodedSalt = new TextEncoder().encode(user[0].apiKeySalt as string)
   const encodedKey = new TextEncoder().encode(process.env.NEXTAUTH_SECRET)
 
-  const importedKey = await crypto.subtle.importKey("raw", encodedSalt, { name: "AES-GCM" }, false, ["decrypt"])
+  const importedKey = await crypto.subtle.importKey(
+    'raw',
+    encodedSalt,
+    { name: 'AES-GCM' },
+    false,
+    ['decrypt'],
+  )
 
   const encryptedText = atob(apiKey)
-  const encryptedBuffer = new Uint8Array(encryptedText.split("").map((char) => char.charCodeAt(0))) as any
+  const encryptedBuffer = new Uint8Array(
+    encryptedText.split('').map((char) => char.charCodeAt(0)),
+  ) as any
 
   try {
     const decrypted = await crypto.subtle.decrypt(
       {
-        name: "AES-GCM",
+        name: 'AES-GCM',
         iv: encodedKey,
       },
       importedKey,
-      encryptedBuffer
+      encryptedBuffer,
     )
 
     const decryptedString = new TextDecoder().decode(decrypted)
 
-    if (decryptedString === user[0].id + "." + user[0].apiKeySalt) {
+    if (decryptedString === user[0].id + '.' + user[0].apiKeySalt) {
       return user[0].id
     }
 
@@ -57,14 +64,17 @@ export const getUserIdForApiKey = async (apiKey: string) => {
 
 export const getApiKey = async ({ intent }: { intent: string }) => {
   const session = await getServerSession(authOptions)
-  if (!session) throw new Error("Session not found")
+  if (!session) throw new Error('Session not found')
 
-  console.log("session", intent)
+  console.log('session', intent)
 
   // check if API key exists
-  const user = await db.select().from(users).where(eq(users.id, session.user.id))
+  const user = await db
+    .select()
+    .from(users)
+    .where(eq(users.id, session.user.id))
 
-  if (intent === "new" || !user[0].apiKey) {
+  if (intent === 'new' || !user[0].apiKey) {
     const salt = nanoid(32)
     const text = `${session.user.id}.${salt}`
     const key = process.env.NEXTAUTH_SECRET
@@ -73,16 +83,24 @@ export const getApiKey = async ({ intent }: { intent: string }) => {
     const encodedText = new TextEncoder().encode(text)
     const encodedKey = new TextEncoder().encode(key)
 
-    const importedKey = await crypto.subtle.importKey("raw", encodedSalt, { name: "AES-GCM" }, false, ["encrypt"])
+    const importedKey = await crypto.subtle.importKey(
+      'raw',
+      encodedSalt,
+      { name: 'AES-GCM' },
+      false,
+      ['encrypt'],
+    )
     const encrypted = await crypto.subtle.encrypt(
       {
-        name: "AES-GCM",
+        name: 'AES-GCM',
         iv: encodedKey,
       },
       importedKey,
-      encodedText
+      encodedText,
     )
-    const encryptedText = btoa(String.fromCharCode.apply(null, new Uint8Array(encrypted) as any))
+    const encryptedText = btoa(
+      String.fromCharCode.apply(null, new Uint8Array(encrypted) as any),
+    )
 
     // update user
     await db
@@ -151,7 +169,10 @@ export const createShortUrlSessioned = async (urlPayload: ShortUrl) => {
   return await createShortUrlUnsafe(urlPayload, session.user.id)
 }
 
-export const createShortUrlWithApiKey = async (urlPayload: ShortUrl, apiKey: string) => {
+export const createShortUrlWithApiKey = async (
+  urlPayload: ShortUrl,
+  apiKey: string,
+) => {
   const userId = await getUserIdForApiKey(apiKey)
   if (!userId) {
     throw unauthorizedError
@@ -159,12 +180,18 @@ export const createShortUrlWithApiKey = async (urlPayload: ShortUrl, apiKey: str
   return await createShortUrlUnsafe(urlPayload, userId)
 }
 
-async function createShortUrlUnsafe(urlPayload: ShortUrl, userId: string): Promise<ShortUrl> {
-  const id = sanitize(urlPayload.id || "") || nanoid(6)
+async function createShortUrlUnsafe(
+  urlPayload: ShortUrl,
+  userId: string,
+): Promise<ShortUrl> {
+  const id = sanitize(urlPayload.id || '') || nanoid(6)
   const url = new URL(urlPayload.url)
 
   if (id.length < 4) {
-    throw new ShortUrlApiError(400, "Short URL must be at least 4 characters long")
+    throw new ShortUrlApiError(
+      400,
+      'Short URL must be at least 4 characters long',
+    )
   }
 
   for (const blockedUrl of blocked) {
@@ -172,15 +199,15 @@ async function createShortUrlUnsafe(urlPayload: ShortUrl, userId: string): Promi
       try {
         await db.delete(shortUrls).where(like(shortUrls.url, `%${blockedUrl}%`))
       } catch {
-        console.log("Error deleting old shortUrls")
+        console.log('Error deleting old shortUrls')
       }
 
-      throw new ShortUrlApiError(406, "URL not acceptable or is blocked")
+      throw new ShortUrlApiError(406, 'URL not acceptable or is blocked')
     }
   }
 
   if (urlPayload.clickLimit && isNaN(urlPayload.clickLimit)) {
-    throw new ShortUrlApiError(400, "Click limit is not a number")
+    throw new ShortUrlApiError(400, 'Click limit is not a number')
   }
 
   const data = {
@@ -196,16 +223,16 @@ async function createShortUrlUnsafe(urlPayload: ShortUrl, userId: string): Promi
     updatedAt: new Date(),
   }
 
-  if (data.id.startsWith("_")) {
-    throw new ShortUrlApiError(400, "Short URL cannot start with an underscore")
+  if (data.id.startsWith('_')) {
+    throw new ShortUrlApiError(400, 'Short URL cannot start with an underscore')
   }
 
   try {
     await db.insert(shortUrls).values(data)
     return data
   } catch (error: any) {
-    if (error?.code === "23505") {
-      throw new ShortUrlApiError(400, "Short URL already exists")
+    if (error?.code === '23505') {
+      throw new ShortUrlApiError(400, 'Short URL already exists')
     } else {
       throw new ShortUrlApiError(500, error.message)
     }
@@ -227,16 +254,16 @@ export const updateShortUrl = async ({
 }) => {
   const session = await getServerSession(authOptions)
   if (!session) {
-    throw new Error("Session not found")
+    throw new Error('Session not found')
   }
 
   const xid = newId || id
 
-  if (xid.startsWith("_")) {
+  if (xid.startsWith('_')) {
     return {
       error: {
-        code: "400",
-        message: "Short URL cannot start with an underscore",
+        code: '400',
+        message: 'Short URL cannot start with an underscore',
       },
     }
   }
@@ -252,17 +279,17 @@ export const updateShortUrl = async ({
       })
       .where(and(eq(shortUrls.userId, session.user.id), eq(shortUrls.id, id)))
   } catch (error: any) {
-    if (error?.code === "23505") {
+    if (error?.code === '23505') {
       return {
         error: {
-          code: "23505",
-          message: "Short URL already exists",
+          code: '23505',
+          message: 'Short URL already exists',
         },
       }
     } else {
       return {
         error: {
-          code: "500",
+          code: '500',
           message: error.message,
         },
       }
@@ -275,7 +302,7 @@ export const updateShortUrl = async ({
 export const deleteShortUrl = async ({ id }: { id: string }) => {
   const session = await getServerSession(authOptions)
   if (!session) {
-    throw new Error("Session not found")
+    throw new Error('Session not found')
   }
 
   return await db.delete(shortUrls).where(eq(shortUrls.id, id))

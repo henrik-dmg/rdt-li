@@ -1,30 +1,29 @@
-"use client"
+'use client'
 
-import Link from "next/link"
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
-import { toast } from "sonner"
-
-import { getApiKey } from "@/lib/auth-helpers"
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
+import { getApiKey } from '@/lib/auth-helpers'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import Link from 'next/link'
+import { toast } from 'sonner'
 
 const Page = () => {
   const queryClient = useQueryClient()
 
   const { isPending, isError, data } = useQuery({
-    queryKey: ["key"],
+    queryKey: ['key'],
     queryFn: async () => {
       return await getApiKey({
-        intent: "auto",
+        intent: 'auto',
       })
     },
   })
 
   const mutation = useMutation({
     mutationFn: async () => {
-      return await getApiKey({ intent: "new" })
+      return await getApiKey({ intent: 'new' })
     },
     onSuccess: (data) => {
-      queryClient.setQueryData(["key"], data)
+      queryClient.setQueryData(['key'], data)
     },
   })
 
@@ -58,16 +57,16 @@ const Page = () => {
         </Link>
         <p className="font-sans font-medium">API Key</p>
 
-        {typeof data === "string" ? (
+        {typeof data === 'string' ? (
           <>
             <Alert
               className="flex cursor-pointer select-none flex-col items-center gap-3 text-center"
               onClick={() => {
                 navigator.clipboard.writeText(data)
-                toast.success("Copied to clipboard")
+                toast.success('Copied to clipboard')
               }}
             >
-              <AlertTitle>{data.slice(0, 32) + " ..."}</AlertTitle>
+              <AlertTitle>{data.slice(0, 32) + ' ...'}</AlertTitle>
               <AlertDescription className="text-red-500">
                 Save this key somewhere safe.
                 <br />
@@ -79,7 +78,7 @@ const Page = () => {
                 className="rounded-md bg-black px-6 py-1.5 text-white hover:bg-blue-500"
                 onClick={() => {
                   navigator.clipboard.writeText(data)
-                  toast.success("Copied to clipboard")
+                  toast.success('Copied to clipboard')
                 }}
               >
                 Copy

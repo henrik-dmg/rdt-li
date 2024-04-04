@@ -1,21 +1,14 @@
-"use client"
+'use client'
 
-import Image from "next/image"
-import Link from "next/link"
-import { zodResolver } from "@hookform/resolvers/zod"
-import { useMutation, useQueryClient } from "@tanstack/react-query"
-import { Home, Laptop, Moon, Star, Sun } from "lucide-react"
-import { signOut } from "next-auth/react"
-import { useTheme } from "next-themes"
-import { useForm } from "react-hook-form"
-import { toast } from "sonner"
-import * as z from "zod"
-
-import { createShortUrlSessioned } from "@/lib/auth-helpers"
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Button } from "@/components/ui/button"
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from '@/components/ui/accordion'
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -23,9 +16,17 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
-import { Input } from "@/components/ui/input"
+} from '@/components/ui/dropdown-menu'
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form'
+import { Input } from '@/components/ui/input'
 import {
   Menubar,
   MenubarContent,
@@ -34,9 +35,26 @@ import {
   MenubarSeparator,
   MenubarShortcut,
   MenubarTrigger,
-} from "@/components/ui/menubar"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import ShowUrl from "./shortUrls"
+} from '@/components/ui/menubar'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
+import { createShortUrlSessioned } from '@/lib/auth-helpers'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { Home, Laptop, Moon, Star, Sun } from 'lucide-react'
+import { signOut } from 'next-auth/react'
+import { useTheme } from 'next-themes'
+import Image from 'next/image'
+import Link from 'next/link'
+import { useForm } from 'react-hook-form'
+import { toast } from 'sonner'
+import * as z from 'zod'
+import ShowUrl from './shortUrls'
 
 const formSchema = z.object({
   id: z.string().max(128),
@@ -55,12 +73,12 @@ export default function Page() {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      id: "",
-      url: "",
-      title: "",
-      enabled: "true",
-      clickLimit: "",
-      password: "",
+      id: '',
+      url: '',
+      title: '',
+      enabled: 'true',
+      clickLimit: '',
+      password: '',
       timeOffset: 0,
     },
   })
@@ -71,7 +89,7 @@ export default function Page() {
         id: values.id,
         url: values.url,
         title: values.title,
-        enabled: values.enabled === "true",
+        enabled: values.enabled === 'true',
         clickLimit: null,
         password: values.password,
         timeOffset: values.timeOffset,
@@ -85,7 +103,7 @@ export default function Page() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: ["shortUrls"],
+        queryKey: ['shortUrls'],
       })
       form.reset()
     },
@@ -100,19 +118,24 @@ export default function Page() {
     await mutation.mutateAsync(values)
   }
 
-  const domain: any = process.env.NEXT_PUBLIC_APP_URL?.split("://")[1] + "/"
+  const domain: any = process.env.NEXT_PUBLIC_APP_URL?.split('://')[1] + '/'
 
   return (
     <div className="container flex min-h-[100dvh] max-w-3xl flex-col p-5 font-mono">
       <Alert className="mb-5" variant="default">
-        <AlertTitle className="text-xs font-semibold">API access added!</AlertTitle>
+        <AlertTitle className="text-xs font-semibold">
+          API access added!
+        </AlertTitle>
         <AlertDescription className="text-[0.7rem]">
-          * Generate API key{" "}
+          * Generate API key{' '}
           <Link className="underline" href="/x/key">
             here
           </Link>
-          <br />* Docs:{" "}
-          <Link className="underline" href={`${process.env.NEXT_PUBLIC_APP_URL}/api/v1/docs`}>
+          <br />* Docs:{' '}
+          <Link
+            className="underline"
+            href={`${process.env.NEXT_PUBLIC_APP_URL}/api/v1/docs`}
+          >
             rdt.li/docs
           </Link>
         </AlertDescription>
@@ -152,7 +175,10 @@ export default function Page() {
                         </MenubarTrigger>
                         <MenubarContent className="absolute -right-6">
                           <MenubarItem>
-                            <Link href={"/x/key"} className="flex w-full justify-end text-xs">
+                            <Link
+                              href={'/x/key'}
+                              className="flex w-full justify-end text-xs"
+                            >
                               API Key
                             </Link>
                           </MenubarItem>
@@ -166,15 +192,21 @@ export default function Page() {
                               </MenubarItem>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end">
-                              <DropdownMenuItem onClick={() => setTheme("light")}>
+                              <DropdownMenuItem
+                                onClick={() => setTheme('light')}
+                              >
                                 <Sun className="mr-2 h-4 w-4" />
                                 <span className="text-xs">Light</span>
                               </DropdownMenuItem>
-                              <DropdownMenuItem onClick={() => setTheme("dark")}>
+                              <DropdownMenuItem
+                                onClick={() => setTheme('dark')}
+                              >
                                 <Moon className="mr-2 h-4 w-4" />
                                 <span className="text-xs">Dark</span>
                               </DropdownMenuItem>
-                              <DropdownMenuItem onClick={() => setTheme("system")}>
+                              <DropdownMenuItem
+                                onClick={() => setTheme('system')}
+                              >
                                 <Laptop className="mr-2 h-4 w-4" />
                                 <span className="text-xs">System</span>
                               </DropdownMenuItem>
@@ -182,7 +214,10 @@ export default function Page() {
                           </DropdownMenu>
 
                           <MenubarSeparator />
-                          <MenubarItem className="flex w-full justify-end text-xs" onClick={() => signOut()}>
+                          <MenubarItem
+                            className="flex w-full justify-end text-xs"
+                            onClick={() => signOut()}
+                          >
                             Sign Out
                           </MenubarItem>
                         </MenubarContent>
@@ -198,7 +233,9 @@ export default function Page() {
                   />
                 </FormControl>
                 <FormMessage />
-                <FormDescription className="text-xs">Enter a valid https URL</FormDescription>
+                <FormDescription className="text-xs">
+                  Enter a valid https URL
+                </FormDescription>
               </FormItem>
             )}
           />
@@ -252,7 +289,10 @@ export default function Page() {
                               <FormLabel className="absolute -top-3 left-3 rounded-md bg-background px-2.5 text-[0.7rem] text-foreground/50">
                                 Active
                               </FormLabel>
-                              <Select onValueChange={field.onChange} value={field.value}>
+                              <Select
+                                onValueChange={field.onChange}
+                                value={field.value}
+                              >
                                 <SelectTrigger className="w-[5.5rem] text-xs">
                                   <SelectValue placeholder="Yes" />
                                 </SelectTrigger>
@@ -367,7 +407,12 @@ export default function Page() {
 
       <div className="mt-8 flex w-full justify-center">
         <Link href="https://vercel.com" target="_blank">
-          <Image src="/powered-by-vercel.svg" alt="Powered by Vercel" height={32} width={128} />
+          <Image
+            src="/powered-by-vercel.svg"
+            alt="Powered by Vercel"
+            height={32}
+            width={128}
+          />
         </Link>
       </div>
     </div>
